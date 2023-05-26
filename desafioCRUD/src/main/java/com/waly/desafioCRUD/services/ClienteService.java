@@ -3,6 +3,7 @@ package com.waly.desafioCRUD.services;
 import com.waly.desafioCRUD.dto.ClienteDto;
 import com.waly.desafioCRUD.entities.Cliente;
 import com.waly.desafioCRUD.repositories.ClienteRepository;
+import com.waly.desafioCRUD.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,8 +24,7 @@ public class ClienteService {
 
     @Transactional(readOnly = true)
     public ClienteDto findById(Long id){
-         Optional<Cliente> result = repository.findById(id);
-        Cliente cliente = result.get();
+         Cliente cliente = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Recurso não encontrado"));
         return new ClienteDto(cliente);
     }
 
@@ -52,6 +52,9 @@ public class ClienteService {
 
     @Transactional
     public void delete(Long id){
+       if(!repository.existsById(id)){
+           throw new ResourceNotFoundException("recurso não encontrado");
+       }
        repository.deleteById(id);
     }
 
